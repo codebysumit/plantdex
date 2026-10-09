@@ -99,9 +99,8 @@ def create_app():
     @app.route("/healthz")
     def health_check():
         """Render health check route and memory inspection."""
-        import resource if sys.platform != "win32" else None
         mem_mb = 0
-        if sys.platform != "win32" and "resource" in sys.modules:
+        if sys.platform != "win32":
             import resource
             mem_mb = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024, 1)
 
