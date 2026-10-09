@@ -18,13 +18,14 @@
 3. [System Architecture & Data Flow](#-system-architecture--data-flow)
 4. [Identification Engine & Confidence Logic](#-identification-engine--confidence-logic)
 5. [Unknown Plants, Custom Naming & Offline Sync](#-unknown-plants-custom-naming--offline-sync)
-6. [Render Deployment Guide (512 MB RAM Optimization)](#-render-deployment-guide)
-7. [Ephemeral vs Persistent Storage on Render](#-ephemeral-vs-persistent-storage-on-render)
-8. [CLI Management & Database Backup](#-cli-management--database-backup)
-9. [10-Plant Benchmark & Honest Evaluation Report](#-10-plant-benchmark--honest-evaluation-report)
-10. [Known Limitations](#-known-limitations)
-11. [Draft for DEV Challenge Submission Post](#-draft-for-dev-challenge-submission-post)
-12. [Open-Source Credits & Data Licenses](#-open-source-credits--data-licenses)
+6. [Local Setup & Running Locally](#-local-setup--running-locally)
+7. [Render Deployment Guide (512 MB RAM Optimization)](#-render-deployment-guide)
+8. [Ephemeral vs Persistent Storage on Render](#-ephemeral-vs-persistent-storage-on-render)
+9. [CLI Management & Database Backup](#-cli-management--database-backup)
+10. [10-Plant Benchmark & Honest Evaluation Report](#-10-plant-benchmark--honest-evaluation-report)
+11. [Known Limitations](#-known-limitations)
+12. [Draft for DEV Challenge Submission Post](#-draft-for-dev-challenge-submission-post)
+13. [Open-Source Credits & Data Licenses](#-open-source-credits--data-licenses)
 
 ---
 
@@ -130,6 +131,109 @@ Unlike rigid computer vision apps that crash or discard photos when a model fail
    * If offline or Wikipedia is unreachable, the catch is **never blocked**. It saves with status `details_pending`.
    * A thread-safe background sync worker (`sync_worker.py`) resolves details in batches with exponential backoff whenever the server is connected.
    * Once details are fetched for a plant, every user in the database who catches that plant immediately benefits from the cached facts!
+
+---
+
+## 💻 Local Setup & Running Locally
+
+Follow these step-by-step instructions to get PlantDex running on your local machine for development and testing.
+
+### Prerequisites
+* **Python 3.10+** installed ([python.org](https://www.python.org/downloads/))
+* **Git** installed ([git-scm.com](https://git-scm.com/))
+
+---
+
+### Step 1: Clone the Repository
+```bash
+git clone git@github.com:codebysumit/plantdex.git
+cd plantdex
+```
+
+---
+
+### Step 2: Create and Activate a Virtual Environment
+
+* **On Windows (PowerShell):**
+  ```powershell
+  python -m venv venv
+  .\venv\Scripts\Activate.ps1
+  ```
+  *(If script execution is disabled in PowerShell, run `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` first, or use Command Prompt).*
+
+* **On Windows (Command Prompt):**
+  ```cmd
+  python -m venv venv
+  venv\Scripts\activate.bat
+  ```
+
+* **On macOS / Linux:**
+  ```bash
+  python3 -m venv venv
+  source venv/bin/activate
+  ```
+
+---
+
+### Step 3: Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+> [!TIP]
+> **Optional ML Runtime for Local Inference:**
+> `requirements.txt` installs core backend packages (Flask, Pillow, Requests, NumPy, etc.). If you want on-device TFLite inference locally on Windows/macOS, install Google's official LiteRT runtime:
+> ```bash
+> pip install ai-edge-litert
+> ```
+> If not installed, PlantDex automatically falls back to mock inference mode so you can still fully test UI capture, custom plant naming, Dex registration, and offline catalog workflows without installing any heavy ML tools.
+
+---
+
+### Step 4: Configure Environment Variables
+Copy the configuration template to create your `.env` file:
+
+* **Windows:**
+  ```cmd
+  copy .env.example .env
+  ```
+* **macOS / Linux:**
+  ```bash
+  cp .env.example .env
+  ```
+
+*(Optional: Edit `.env` and set `GEMINI_API_KEY` if you want to test Google AI Studio's "Double Check" feature. Otherwise, leave it blank for 100% offline local mode).*
+
+---
+
+### Step 5: Download Model & Initialize Database
+Run the setup commands to download the AI model and initialize the SQLite botanical database:
+```bash
+# 1. Download Google AIY Plants V1 quantized TFLite classifier (~3.7 MB)
+python models/download_model.py
+
+# 2. Initialize SQLite schema and load curated botanical seed dataset
+python cli.py init-db
+```
+
+---
+
+### Step 6: Start the Application
+Run the local development server:
+```bash
+python app.py
+```
+*(Or start using Flask CLI in debug mode: `flask --app app run --debug --port 5000`)*
+
+---
+
+### Step 7: Open in Your Browser
+Visit:
+```
+http://localhost:5000
+```
+* Register a new field account or explore the botanical catalog.
+* Point your camera at plants, test captures, and watch specimens register to your Pokédex!
 
 ---
 
@@ -267,8 +371,8 @@ Most AI apps are bloated wrappers around massive commercial APIs that leak priva
 * **Smart Unknown Fallbacks:** When confidence is below 25%, the app prompts the user: *"Do you know this plant?"*, saving specimens as monotonic `Unknown N` records with offline background synchronization.
 * **Hosted on Render:** 1 worker, 4 threads, with memory footprint kept below 90 MB.
 
-### Code & Live Demo
-* **GitHub Repository:** [https://github.com/example/plantdex](https://github.com/example/plantdex)
+### Code Repository
+* **GitHub Repository:** [https://github.com/codebysumit/plantdex](https://github.com/codebysumit/plantdex)
 * **Open Source Model:** Google AIY Plants Classifier V1 (Apache 2.0)
 
 ---
