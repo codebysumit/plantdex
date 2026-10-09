@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f1f8e9"/><stop offset="100%" stop-color="#dcedc8"/></linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7cb342"/><stop offset="100%" stop-color="#33691e"/></linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="30" fill="url(#bg)"/>
+  <circle cx="200" cy="200" r="140" fill="#c5e1a5" opacity="0.4"/>
+  <path d="M200 60 Q260 140 240 220 Q220 280 200 320 Q180 280 160 220 Q140 140 200 60 Z" fill="url(#leaf)"/>
+  <path d="M200 60 L200 320" stroke="#1b5e20" stroke-width="4" stroke-linecap="round"/>
+  <text x="200" y="365" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#33691e" text-anchor="middle">Urtica dioica</text>
+</svg>

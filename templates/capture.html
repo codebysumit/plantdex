@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Scan & Identify Plant - PlantDex{% endblock %}
+
+{% block content %}
+<div class="capture-box">
+  <div style="margin-bottom: 1.5rem;">
+    <h1 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;">Botanical Field Scanner</h1>
+    <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 0.25rem;">
+      Point, capture, and identify plants using our on-device neural engine.
+    </p>
+  </div>
+
+  <form id="capture-form" method="POST" action="{{ url_for('capture_scan') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Hidden native file inputs -->
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+    <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+
+    <!-- Capture Action Buttons -->
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.25rem;">
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('camera-input').click()" id="btn-camera-trigger">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        Take Photo
+      </button>
+
+      <button type="button" class="btn btn-secondary" onclick="document.getElementById('photo-input').click()" id="btn-upload-trigger">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Upload From Gallery
+      </button>
+    </div>
+
+    <!-- Drag & Drop Zone -->
+    <div class="drop-zone" id="drop-zone" onclick="document.getElementById('photo-input').click()">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📸</div>
+      <p style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Drag &amp; drop an image here</p>
+      <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.2rem;">JPEG, PNG, or WebP up to 8 MB</p>
+    </div>
+
+    <!-- Live Preview & Radar Overlay -->
+    <div class="preview-container" id="preview-container">
+      <img id="preview-img" src="#" alt="Field Photo Preview">
+      
+      <!-- Animated Radar Beam during Scan -->
+      <div class="scan-radar-overlay" id="scan-overlay">
+        <div class="radar-beam"></div>
+        <span style="font-weight: 700; font-size: 0.95rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">Analyzing Botanical Features...</span>
+        <span style="font-size: 0.78rem; opacity: 0.9;">Multi-crop 3-view inference</span>
+      </div>
+    </div>
+
+    <!-- Scan Trigger Button -->
+    <div style="margin-top: 1.5rem;">
+      <button type="submit" class="btn btn-primary btn-lg" id="scan-btn" disabled style="width: 100%; max-width: 320px;">
+        🔍 Scan Plant &amp; Identify
+      </button>
+    </div>
+  </form>
+
+  <!-- Pro-tip Botanical Photography Guide -->
+  <div style="background: var(--bg-card-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 2rem; text-align: left;">
+    <h4 style="font-size: 0.92rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+      <span>💡</span> Tips for Highest Botanical Accuracy:
+    </h4>
+    <ul style="font-size: 0.84rem; color: var(--text-muted); padding-left: 1.2rem; line-height: 1.6;">
+      <li><strong>Isolate one specimen:</strong> Frame a single flower, leaf, or cluster rather than a wide landscape.</li>
+      <li><strong>Sharp focus &amp; bright natural light:</strong> Avoid dark shadows and blurry phone motion.</li>
+      <li><strong>Distinct botanical traits:</strong> Leaf margins, venation, and petal arrangements provide the strongest signal to the neural network.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/capture.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PlantDex - Pokédex for Real Plants{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}PlantDex is an open-source botanical companion. Snap a photo of any leaf or flower to name it, log its Dex entry, and learn real science.{% endblock %}">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2e7d32">
+  <link rel="icon" href="{{ url_for('static', filename='thumbnails/default_plant.svg') }}" type="image/svg+xml">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="dex-header">
+    <div class="header-container">
+      <a href="{{ url_for('dashboard') if current_user else url_for('landing_page') }}" class="brand-link" id="brand-home-link">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+            <path d="M12 6a6 6 0 0 0-6 6"/>
+            <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <span>PlantDex</span>
+        <span class="brand-badge">Touch Grass</span>
+      </a>
+
+      <nav class="nav-links">
+        {% if current_user %}
+          <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" id="nav-dex">My Dex</a>
+          <a href="{{ url_for('capture_page') }}" class="nav-link {% if request.endpoint == 'capture_page' %}active{% endif %}" id="nav-capture">🌿 Scan</a>
+          <a href="{{ url_for('credits_page') }}" class="nav-link {% if request.endpoint == 'credits_page' %}active{% endif %}" id="nav-credits">Credits</a>
+          <a href="{{ url_for('auth_logout') }}" class="nav-link" id="nav-logout">Sign Out</a>
+        {% else %}
+          <a href="{{ url_for('credits_page') }}" class="nav-link" id="nav-credits-public">Credits</a>
+          <a href="{{ url_for('auth_login') }}" class="nav-link" id="nav-login">Sign In</a>
+          <a href="{{ url_for('auth_register') }}" class="btn btn-primary btn-sm" id="nav-register">Get Started</a>
+        {% endif %}
+        <button class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme" id="theme-toggle-btn">
+          <span id="theme-toggle-icon">🌙</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-toast {{ category }}">
+              <span>{{ message }}</span>
+              <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-weight:bold;margin-left:1rem;color:inherit;">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="dex-footer">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+      <p><strong>PlantDex</strong> &copy; 2026 &mdash; Built for Hacktoberfest Open-Source AI Challenge (<em>Touch Grass</em>).</p>
+      <p>
+        <a href="{{ url_for('credits_page') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Data Licenses & Model Attribution</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

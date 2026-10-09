@@ -1,0 +1,23 @@
+{
+  "name": "PlantDex - Pocket Botanical Companion",
+  "short_name": "PlantDex",
+  "description": "Pokedex for real plants. Identify, log, and discover flora in the wild.",
+  "start_url": "/dex",
+  "display": "standalone",
+  "background_color": "#0c140e",
+  "theme_color": "#2e7d32",
+  "icons": [
+    {
+      "src": "/static/thumbnails/default_plant.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/thumbnails/default_plant.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

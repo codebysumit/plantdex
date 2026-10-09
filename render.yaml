@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: plantdex
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python models/download_model.py && python cli.py init-db"
+    startCommand: "gunicorn -c gunicorn.conf.py app:app"
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CONFIDENCE_CAUGHT
+        value: "0.50"
+      - key: CONFIDENCE_MAYBE
+        value: "0.25"
+      - key: GEMINI_API_KEY
+        sync: false
+      # If using Render Free Tier (ephemeral disk):
+      # Leave DATA_DIR unset or set to data/ inside repo. Prebuilt seed works automatically.
+      # If upgrading to a Render Persistent Disk ($1/month):
+      # - key: DATA_DIR
+      #   value: /var/data/plantdex
+    # Optional Persistent Disk configuration (Render Starter tier):
+    # disk:
+    #   name: plantdex-disk
+    #   mountPath: /var/data/plantdex
+    #   sizeGB: 1

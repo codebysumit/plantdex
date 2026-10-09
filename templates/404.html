@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Botanical Specimen Not Found | PlantDex{% endblock %}
+
+{% block content %}
+<div style="text-align: center; max-width: 500px; margin: 4rem auto; padding: 2rem;">
+  <div style="font-size: 4rem; margin-bottom: 1rem;">🥀</div>
+  <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">404 &mdash; Off the Beaten Trail</h1>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem;">
+    The plant or page you are looking for has withered away or has not yet sprouted.
+  </p>
+  <a href="{{ url_for('dashboard') if current_user else url_for('landing_page') }}" class="btn btn-primary" id="btn-404-home">
+    Return to the Meadow
+  </a>
+</div>
+{% endblock %}

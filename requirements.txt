@@ -1,0 +1,9 @@
+Flask==3.0.3
+gunicorn==22.0.0
+Pillow==10.3.0
+requests==2.31.0
+numpy==1.26.4
+python-dotenv==1.0.1
+click==8.1.7
+# Lightweight CPU-only TFLite runtime for Linux servers (e.g. Render Debian/Ubuntu container)
+tflite-runtime==2.14.0; platform_system == "Linux"

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Open-Source Credits & Attribution - PlantDex{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 1.5rem auto;">
+  <div style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2rem; font-weight: 800;">Open-Source Credits &amp; Attribution</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">
+      PlantDex is built entirely on open tools, public domain science, and permissive community datasets.
+    </p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <!-- Model Attribution -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">Google AIY Plants Classifier V1</h3>
+        <span style="font-size: 0.8rem; background: var(--primary-light); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); font-weight: 700;">Apache 2.0 License</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.75rem;">
+        Quantized TensorFlow Lite vision classifier trained on over 2,100 botanical taxa. Developed by the Google AIY Projects team for energy-efficient on-device edge computing.
+      </p>
+      <a href="https://tfhub.dev/google/lite-model/aiy/vision/classifier/plants_V1/3" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; font-size: 0.88rem;">
+        View model card on TensorFlow Hub &rarr;
+      </a>
+    </div>
+
+    <!-- Wikipedia & Wikimedia Commons -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">Wikipedia &amp; Wikimedia Commons</h3>
+        <span style="font-size: 0.8rem; background: var(--primary-light); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); font-weight: 700;">CC BY-SA 4.0 / Public Domain</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.75rem;">
+        Botanical encyclopedic summaries, species range details, and high-resolution reference photographs are provided via the Wikipedia REST API and Wikimedia Commons under Creative Commons ShareAlike licenses.
+      </p>
+      <a href="https://en.wikipedia.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; font-size: 0.88rem;">
+        Explore Wikimedia Foundation &rarr;
+      </a>
+    </div>
+
+    <!-- GBIF Species API -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">Global Biodiversity Information Facility (GBIF)</h3>
+        <span style="font-size: 0.8rem; background: var(--primary-light); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); font-weight: 700;">CC0 / Open Data</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.75rem;">
+        Taxonomic hierarchies (Kingdom, Family, Genus) and standardized botanical nomenclature verified through the open GBIF Species Backbone API.
+      </p>
+      <a href="https://www.gbif.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; font-size: 0.88rem;">
+        Visit GBIF.org &rarr;
+      </a>
+    </div>
+
+    <!-- iNaturalist -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--primary);">iNaturalist Taxa API</h3>
+        <span style="font-size: 0.8rem; background: var(--primary-light); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); font-weight: 700;">Open Community Licenses</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.75rem;">
+        Secondary fallback for vernacular regional names and openly licensed crowd-sourced botanical observations.
+      </p>
+      <a href="https://www.inaturalist.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 600; font-size: 0.88rem;">
+        Visit iNaturalist &rarr;
+      </a>
+    </div>
+
+    <!-- Software Stack & Libraries -->
+    <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.75rem;">Core Software Stack</h3>
+      <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.2rem; line-height: 1.7;">
+        <li><strong>Python &amp; Flask:</strong> Lightweight WSGI application framework (BSD-3-Clause)</li>
+        <li><strong>SQLite:</strong> Embedded ACID SQL database engine (Public Domain)</li>
+        <li><strong>Gunicorn:</strong> Production WSGI HTTP server (MIT License)</li>
+        <li><strong>Pillow (PIL):</strong> Image processing, EXIF stripping &amp; Lanczos downsampling (HPND License)</li>
+        <li><strong>NumPy:</strong> Multi-crop array math and tensor manipulation (BSD License)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

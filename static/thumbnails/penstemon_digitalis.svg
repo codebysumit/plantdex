@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f3e5f5"/><stop offset="100%" stop-color="#e1bee7"/></linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="30" fill="url(#bg)"/>
+  <circle cx="200" cy="200" r="140" fill="#ce93d8" opacity="0.3"/>
+  <path d="M200 320 Q200 200 200 70" stroke="#388e3c" stroke-width="5"/>
+  <path d="M180 120 Q200 100 220 120 L210 170 L190 170 Z" fill="#ffffff" stroke="#ab47bc" stroke-width="3"/>
+  <path d="M150 180 Q170 160 190 180 L180 230 L160 230 Z" fill="#ffffff" stroke="#ab47bc" stroke-width="3"/>
+  <path d="M210 180 Q230 160 250 180 L240 230 L220 230 Z" fill="#ffffff" stroke="#ab47bc" stroke-width="3"/>
+  <text x="200" y="365" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#6a1b9a" text-anchor="middle">Penstemon digitalis</text>
+</svg>

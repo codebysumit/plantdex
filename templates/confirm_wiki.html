@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Confirm Wikipedia Details - PlantDex{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-md);">
+  <div style="text-align: center; margin-bottom: 1.5rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.8rem; margin-bottom: 0.5rem;">
+      📖 Wikipedia Match Found
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800;">Is this your plant?</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      We found an encyclopedia entry for "<strong>{{ typed_name }}</strong>". Please confirm if this matches your specimen.
+    </p>
+  </div>
+
+  <div style="background: var(--bg-card-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.75rem;">
+    <div style="display: flex; gap: 1rem; align-items: start;">
+      {% if wiki['reference_image'] %}
+        <img src="{{ wiki['reference_image'] }}" alt="{{ wiki['title'] }}" style="width: 90px; height: 90px; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; border: 1px solid var(--border);">
+      {% endif %}
+      <div>
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--primary);">{{ wiki['title'] }}</h3>
+        {% if wiki['short_desc'] %}
+          <p style="font-size: 0.84rem; font-style: italic; color: var(--text-muted); margin-bottom: 0.4rem;">{{ wiki['short_desc'] }}</p>
+        {% endif %}
+        <p style="font-size: 0.88rem; color: var(--text-main); line-height: 1.5;">
+          {{ wiki['full_desc'] }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('confirm_wikipedia', capture_id=capture['id']) }}" style="display: flex; gap: 1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <button type="submit" name="confirm" value="yes" class="btn btn-primary btn-lg" style="flex: 1;" id="btn-wiki-confirm-yes">
+      ✅ Yes, save these details
+    </button>
+    
+    <button type="submit" name="confirm" value="no" class="btn btn-secondary btn-lg" style="flex: 1;" id="btn-wiki-confirm-no">
+      ❌ No, keep name only
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ plant['common_name'] or plant['scientific_name'] or capture['custom_plant_name'] }} - PlantDex Specimen
+{% endblock %}
+
+{% block content %}
+<!-- Celebratory Catch Animation Modal (shown if redirected right after scan) -->
+{% if is_new_catch %}
+  <div class="catch-modal" id="catch-modal" onclick="closeCatchModal()">
+    <div class="catch-card" onclick="event.stopPropagation()">
+      <div class="catch-ring-anim">✨</div>
+      <h2 style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">GOTCHA!</h2>
+      <p style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.25rem;">
+        {{ plant['common_name'] or plant['scientific_name'] or capture['custom_plant_name'] }}
+      </p>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">
+        Registered into your field collection!
+      </p>
+      <button class="btn btn-primary" onclick="closeCatchModal()" id="btn-close-catch-modal" style="width: 100%;">
+        View Dex Entry
+      </button>
+    </div>
+  </div>
+{% endif %}
+
+<div style="margin-bottom: 1.25rem;">
+  <a href="{{ url_for('dashboard') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;">
+    &larr; Back to My Collection
+  </a>
+</div>
+
+<div class="detail-grid">
+  <!-- Left Column: Photos (Reference vs Your Field Photo) -->
+  <div class="detail-gallery">
+    <div class="main-photo-frame">
+      {# If reference image is available, display reference image prominently #}
+      {% if plant and plant['local_thumbnail'] %}
+        <img src="{{ plant['local_thumbnail'] }}" alt="{{ plant['scientific_name'] }}">
+      {% elif plant and plant['reference_image'] and plant['reference_image'].startswith('http') %}
+        <img src="{{ plant['reference_image'] }}" alt="{{ plant['scientific_name'] }}">
+      {% else %}
+        <img src="{{ url_for('serve_upload', filename=capture['user_photo_path']) }}" alt="Your Field Photo">
+      {% endif %}
+    </div>
+
+    <!-- Comparison Row: Reference Specimen vs Your Field Photo -->
+    <div class="comparison-photos">
+      <div class="sub-photo-card">
+        {% if plant and (plant['local_thumbnail'] or plant['reference_image']) %}
+          <img src="{{ plant['local_thumbnail'] or plant['reference_image'] }}" alt="Reference Botanical Image">
+          <span class="sub-photo-caption">Reference Specimen</span>
+        {% else %}
+          <div style="height: 110px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); font-size: 2rem; border-radius: var(--radius-sm); margin-bottom: 0.3rem;">
+            🌿
+          </div>
+          <span class="sub-photo-caption">No Reference Photo</span>
+        {% endif %}
+      </div>
+
+      <div class="sub-photo-card">
+        <img src="{{ url_for('serve_upload', filename=capture['user_photo_path']) }}" alt="Your Field Photo">
+        <span class="sub-photo-caption">Your Field Photo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Botanical Metadata & Intelligence -->
+  <div class="detail-info">
+    <div class="detail-meta-row">
+      <span class="dex-number-badge" style="position: static; font-size: 0.88rem; padding: 0.2rem 0.6rem;">
+        {% if plant and plant['dex_num'] %}
+          #{{ "%04d"|format(plant['dex_num']) }}
+        {% elif plant and plant['is_custom'] %}
+          CUSTOM ENTRY
+        {% else %}
+          FIELD LOG
+        {% endif %}
+      </span>
+
+      <!-- Status Badge -->
+      <div>
+        {% if capture['status'] == 'identified_by_model' or capture['status'] == 'complete' %}
+          <span class="status-pill identified" style="position: static;">Identified by AI</span>
+        {% elif capture['status'] == 'named_by_user' %}
+          <span class="status-pill named" style="position: static;">Named by You</span>
+        {% elif capture['status'] == 'unknown' %}
+          <span class="status-pill unknown" style="position: static;">Unknown Specimen</span>
+        {% else %}
+          <span class="status-pill pending" style="position: static;">Details Pending</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Plant Titles -->
+    <h1 style="font-size: 2.1rem; font-weight: 800; margin: 0.2rem 0; line-height: 1.2;">
+      {{ plant['common_name'] or plant['scientific_name'] or capture['custom_plant_name'] }}
+    </h1>
+
+    <h2 style="font-size: 1.15rem; font-style: italic; color: var(--text-muted); font-weight: 500; margin-bottom: 0.75rem;">
+      {{ plant['scientific_name'] if plant else 'Species Unassigned' }}
+    </h2>
+
+    <!-- Taxonomy Pills -->
+    {% if plant and (plant['family'] or plant['genus']) %}
+      <div class="taxonomy-ribbon">
+        {% if plant['family'] %}<span class="taxonomy-pill">Family: {{ plant['family'] }}</span>{% endif %}
+        {% if plant['genus'] %}<span class="taxonomy-pill">Genus: {{ plant['genus'] }}</span>{% endif %}
+        <span class="taxonomy-pill">Kingdom: Plantae</span>
+      </div>
+    {% endif %}
+
+    <!-- Field Log Metadata -->
+    <div style="display: flex; gap: 1.5rem; font-size: 0.86rem; color: var(--text-muted); margin: 0.5rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+      <span>📅 Captured: <strong>{{ capture['created_at'][:10] }}</strong></span>
+      {% if capture['confidence'] > 0 %}
+        <span>🎯 AI Confidence: <strong>{{ (capture['confidence'] * 100)|round|int }}%</strong></span>
+      {% endif %}
+    </div>
+
+    <!-- Botanical Description -->
+    <div class="desc-box">
+      {% if plant and plant['full_desc'] %}
+        <p>{{ plant['full_desc'] }}</p>
+      {% elif capture['status'] == 'details_pending' %}
+        <p style="color: var(--text-muted); font-style: italic;">
+          🌐 You captured this offline or details are currently queued. Complete botanical descriptions will load automatically once the server connects to Wikipedia.
+        </p>
+        <form method="POST" action="{{ url_for('retry_sync', capture_id=capture['id']) }}" style="margin-top: 0.75rem;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary btn-sm" id="btn-manual-sync-retry">
+            🔄 Retry Fetching Details Now
+          </button>
+        </form>
+      {% else %}
+        <p style="color: var(--text-muted); font-style: italic;">
+          No encyclopedic botanical description is linked for this custom entry.
+        </p>
+      {% endif %}
+    </div>
+
+    <!-- Read More Wikipedia Source Link -->
+    {% if plant and plant['source_url'] %}
+      <div style="margin: 0.5rem 0 1rem;">
+        <a href="{{ plant['source_url'] }}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+          📖 Read complete article on Wikipedia &rarr;
+        </a>
+      </div>
+    {% endif %}
+
+    <!-- Gemini Double-Check Tool (Optional AI Helper) -->
+    {% if has_gemini %}
+      <div style="background: var(--bg-card-subtle); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin: 1rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.92rem;">✨ Double-Check with Gemini Vision</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Request a cloud multi-modal second opinion</div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="runGeminiCheck()" id="btn-gemini-check">
+            Consult Gemini
+          </button>
+        </div>
+        <div id="gemini-result-box" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: 0.86rem;"></div>
+      </div>
+    {% endif %}
+
+    <!-- Rename / Edit Name Form (For Unknowns or Custom Plants) -->
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+      <details style="cursor: pointer;">
+        <summary style="font-size: 0.88rem; font-weight: 700; color: var(--primary);">
+          ✏️ Edit Plant Name or Re-Identify
+        </summary>
+        <form method="POST" action="{{ url_for('rename_plant', capture_id=capture['id']) }}" style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="text" name="new_name" placeholder="Type new botanical name..." required maxlength="80"
+                 style="flex: 1; padding: 0.5rem 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card-subtle); color: var(--text-main); font-size: 0.9rem;">
+          <button type="submit" class="btn btn-primary btn-sm" id="btn-rename-submit">Save Name</button>
+        </form>
+      </details>
+    </div>
+
+    <!-- Delete / Remove Action -->
+    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+      <form method="POST" action="{{ url_for('delete_capture', capture_id=capture['id']) }}" onsubmit="return confirm('Remove this plant from your PlantDex collection?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.3);" id="btn-delete-capture">
+          🗑️ Remove From My Dex
+        </button>
+      </form>
+    </div>
+
+    <!-- Data Attribution & Open Licenses -->
+    <div class="license-credits-box">
+      <span>
+        Text License: <strong>{{ (plant and plant['text_license']) or 'CC BY-SA 4.0' }}</strong> &bull; 
+        Image Attribution: <strong>{{ (plant and plant['image_author']) or 'Field Contributor' }}</strong> &bull;
+        Image License: <strong>{{ (plant and plant['image_license']) or 'Open License / User Capture' }}</strong>
+      </span>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function runGeminiCheck() {
+  const btn = document.getElementById('btn-gemini-check');
+  const box = document.getElementById('gemini-result-box');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  box.style.display = 'block';
+  box.innerHTML = '<em>Connecting to Gemini Flash Vision API...</em>';
+
+  fetch("{{ url_for('gemini_double_check', capture_id=capture['id']) }}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": "{{ csrf_token() }}"
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.textContent = 'Consult Gemini';
+    if (data.status === 'success') {
+      const isOfficialText = data.is_official_dex_label ? '✅ Confirmed Dex Species' : 'ℹ️ Unconfirmed Candidate';
+      box.innerHTML = `
+        <div style="color: var(--primary); font-weight: 700; margin-bottom: 0.2rem;">${data.scientific_name} (${data.common_name})</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">Confidence: ${(data.confidence * 100).toFixed(0)}% &bull; ${isOfficialText}</div>
+        <p style="margin: 0; font-size: 0.82rem;">${data.reasoning}</p>
+      `;
+    } else {
+      box.innerHTML = `<span style="color: var(--danger);">${data.error_message || 'Could not complete Gemini analysis.'}</span>`;
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.textContent = 'Consult Gemini';
+    box.innerHTML = `<span style="color: var(--danger);">Network failure while contacting Gemini service.</span>`;
+  });
+}
+</script>
+{% endblock %}

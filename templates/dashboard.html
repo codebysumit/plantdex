@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}My PlantDex Collection ({{ official_caught }}/{{ total_model_plants }}){% endblock %}
+
+{% block content %}
+<!-- Top Header & Action Row -->
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+  <div>
+    <h1 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em;">
+      {{ current_user }}'s Field Dex
+    </h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      Track your botanical findings, explore local flora, and touch grass.
+    </p>
+  </div>
+
+  <a href="{{ url_for('capture_page') }}" class="btn btn-primary btn-lg" id="dashboard-scan-btn">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+    Scan New Plant
+  </a>
+</div>
+
+<!-- Stats Ribbon -->
+<div class="stats-ribbon">
+  <div class="stat-item">
+    <span class="stat-label">Official Species</span>
+    <span class="stat-value">{{ official_caught }} <span style="font-size: 1.1rem; color: var(--text-muted); font-weight: 500;">/ {{ total_model_plants }}</span></span>
+    <span class="stat-sub">Recognized by AI Model</span>
+  </div>
+
+  <div class="stat-item">
+    <span class="stat-label">Dex Completion</span>
+    <span class="stat-value">{{ completion_pct }}%</span>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" style="width: {{ completion_pct }}%;"></div>
+    </div>
+  </div>
+
+  <div class="stat-item">
+    <span class="stat-label">Total Field Logs</span>
+    <span class="stat-value">{{ total_captures }}</span>
+    <span class="stat-sub">Photos &amp; specimens captured</span>
+  </div>
+</div>
+
+<!-- Filter & Search Controls -->
+<div class="filter-bar">
+  <form method="GET" action="{{ url_for('dashboard') }}" style="display: flex; gap: 0.75rem; flex: 1; flex-wrap: wrap;">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" name="q" value="{{ search_query }}" placeholder="Search by common or scientific name..." class="search-input" id="dashboard-search-input">
+    </div>
+
+    <!-- Hidden carry-overs -->
+    <input type="hidden" name="filter" value="{{ status_filter }}">
+
+    <select name="sort" onchange="this.form.submit()" style="padding: 0.6rem 1rem; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 0.88rem; outline: none;">
+      <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Sort: Newest First</option>
+      <option value="dex" {% if sort_by == 'dex' %}selected{% endif %}>Sort: Dex Number</option>
+      <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort: Alphabetical</option>
+    </select>
+  </form>
+
+  <div class="filter-pills">
+    <a href="{{ url_for('dashboard', q=search_query, sort=sort_by, filter='all') }}" class="pill-link {% if status_filter == 'all' %}active{% endif %}">All</a>
+    <a href="{{ url_for('dashboard', q=search_query, sort=sort_by, filter='identified') }}" class="pill-link {% if status_filter == 'identified' %}active{% endif %}">Caught (AI)</a>
+    <a href="{{ url_for('dashboard', q=search_query, sort=sort_by, filter='named') }}" class="pill-link {% if status_filter == 'named' %}active{% endif %}">Named by You</a>
+    <a href="{{ url_for('dashboard', q=search_query, sort=sort_by, filter='unknown') }}" class="pill-link {% if status_filter == 'unknown' %}active{% endif %}">Unknowns</a>
+    <a href="{{ url_for('dashboard', q=search_query, sort=sort_by, filter='pending') }}" class="pill-link {% if status_filter == 'pending' %}active{% endif %}">Pending Details</a>
+  </div>
+</div>
+
+<!-- PlantDex Card Grid -->
+{% if captures %}
+  <div class="cards-grid">
+    {% for item in captures %}
+      <a href="{{ url_for('plant_detail', capture_id=item['capture_id']) }}" class="dex-card" id="card-capture-{{ item['capture_id'] }}">
+        <div class="card-thumb-wrap">
+          {# Display Rule: If reference image exists in database, show reference image. Else show user photo! #}
+          {% if item['local_thumbnail'] %}
+            <img src="{{ item['local_thumbnail'] }}" alt="{{ item['scientific_name'] }}" class="card-img" loading="lazy">
+          {% elif item['reference_image'] and item['reference_image'].startswith('http') %}
+            <img src="{{ item['reference_image'] }}" alt="{{ item['scientific_name'] }}" class="card-img" loading="lazy">
+          {% else %}
+            <img src="{{ url_for('serve_upload', filename=item['user_photo_path']) }}" alt="Your Field Photo" class="card-img" loading="lazy">
+          {% endif %}
+
+          <span class="dex-number-badge">
+            {% if item['dex_num'] %}
+              #{{ "%04d"|format(item['dex_num']) }}
+            {% elif item['is_custom'] %}
+              CUSTOM
+            {% else %}
+              #????
+            {% endif %}
+          </span>
+
+          {% if item['status'] == 'identified_by_model' or item['status'] == 'complete' %}
+            <span class="status-pill identified">Caught</span>
+          {% elif item['status'] == 'named_by_user' %}
+            <span class="status-pill named">Named by You</span>
+          {% elif item['status'] == 'unknown' %}
+            <span class="status-pill unknown">Unknown</span>
+          {% else %}
+            <span class="status-pill pending">Details Pending</span>
+          {% endif %}
+        </div>
+
+        <div class="card-body">
+          <div class="card-title">
+            {{ item['common_name'] or item['scientific_name'] or item['custom_plant_name'] }}
+          </div>
+          <div class="card-subtitle">
+            {% if item['common_name'] and item['scientific_name'] %}
+              {{ item['scientific_name'] }}
+            {% elif item['custom_plant_name'] and item['scientific_name'] %}
+              {{ item['scientific_name'] }}
+            {% else %}
+              Botanical Specimen
+            {% endif %}
+          </div>
+
+          <div class="card-footer">
+            <span>{{ item['created_at'][:10] }}</span>
+            {% if item['confidence'] > 0 %}
+              <span style="font-weight: 700; color: var(--primary);">{{ (item['confidence'] * 100)|round|int }}% Conf.</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+
+    <!-- Silhouette Teaser Cards (Locked Plants) -->
+    {% if not search_query and silhouettes %}
+      {% for sil in silhouettes %}
+        <div class="dex-card silhouette">
+          <div class="card-thumb-wrap">
+            <span class="silhouette-icon">❓</span>
+            <span class="dex-number-badge">#{{ "%04d"|format(sil['dex_num']) }}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-title" style="color: var(--text-muted);">Undiscovered Species</div>
+            <div class="card-subtitle">{{ sil['scientific_name'] }}</div>
+            <div class="card-footer">
+              <span>Go outside to find!</span>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2.5rem;">
+      {% if page > 1 %}
+        <a href="{{ url_for('dashboard', page=page-1, q=search_query, filter=status_filter, sort=sort_by) }}" class="btn btn-secondary btn-sm">&larr; Previous</a>
+      {% endif %}
+      <span style="display: flex; align-items: center; padding: 0 1rem; font-weight: 600; font-size: 0.88rem; color: var(--text-muted);">
+        Page {{ page }} of {{ total_pages }}
+      </span>
+      {% if page < total_pages %}
+        <a href="{{ url_for('dashboard', page=page+1, q=search_query, filter=status_filter, sort=sort_by) }}" class="btn btn-secondary btn-sm">Next &rarr;</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+{% else %}
+  <!-- Empty State -->
+  <div style="text-align: center; padding: 4rem 1rem; background: var(--bg-card); border: 1px dashed var(--border); border-radius: var(--radius-lg); margin-top: 1.5rem;">
+    <div style="font-size: 3.5rem; margin-bottom: 1rem;">🌿</div>
+    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">No plants found in your Dex yet</h2>
+    <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.8rem; font-size: 0.95rem;">
+      {% if search_query or status_filter != 'all' %}
+        No plants matched your search criteria. Try resetting the filters.
+      {% else %}
+        Step outside into the backyard, park, or trail. Take a close photo of a leaf or flower to register your first specimen!
+      {% endif %}
+    </p>
+    <a href="{{ url_for('capture_page') }}" class="btn btn-primary btn-lg" id="empty-state-scan-btn">
+      📷 Scan Your First Plant
+    </a>
+  </div>
+{% endif %}
+{% endblock %}

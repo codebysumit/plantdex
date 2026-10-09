@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}PlantDex - Pokédex for Real Plants | Hacktoberfest 2026{% endblock %}
+
+{% block content %}
+<section style="text-align: center; max-width: 860px; margin: 2rem auto 4rem; padding: 0 1rem;">
+  <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary); padding: 0.35rem 0.9rem; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.85rem; margin-bottom: 1.5rem;">
+    <span>🌱</span> Hacktoberfest 2026: Touch Grass Theme
+  </div>
+  
+  <h1 style="font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 900; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 1.25rem;">
+    A <span style="color: var(--primary);">Pokédex</span> for the Real Living World.
+  </h1>
+
+  <p style="font-size: 1.15rem; color: var(--text-muted); max-width: 680px; margin: 0 auto 2.2rem; line-height: 1.6;">
+    Point your phone at any leaf, bloom, or wild tree. PlantDex names it, saves it to your personal Dex collection, and unlocks real botanical facts &mdash; powered by open-source, on-device AI.
+  </p>
+
+  <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+    <a href="{{ url_for('auth_register') }}" class="btn btn-primary btn-lg" id="landing-register-cta">
+      <span>🎒</span> Start Your PlantDex
+    </a>
+    <a href="{{ url_for('auth_login') }}" class="btn btn-secondary btn-lg" id="landing-login-cta">
+      Sign In
+    </a>
+  </div>
+</section>
+
+<!-- Feature Grid -->
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 4rem;">
+  <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+    <div style="font-size: 2rem; margin-bottom: 0.75rem;">⚡</div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">100% Free & Open AI</h3>
+    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+      Uses Google's AIY Plants V1 classifier running in a quantized CPU TFLite runtime. Requires under 100 MB of RAM, meaning no expensive GPUs or vendor lock-in.
+    </p>
+  </div>
+
+  <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🌲</div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">Built for Off-Grid Hiking</h3>
+    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+      Identification runs entirely on-server with local SQLite caching. If you are deep in a national park without signal, captures save instantly with pending sync.
+    </p>
+  </div>
+
+  <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; box-shadow: var(--shadow-sm);">
+    <div style="font-size: 2rem; margin-bottom: 0.75rem;">🔒</div>
+    <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">Privacy-First Photos</h3>
+    <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.55;">
+      All GPS coordinates and camera EXIF data are automatically stripped on upload. Your field photos remain strictly private to your own account.
+    </p>
+  </div>
+</section>
+
+<!-- Sample Pokédex Specimen Showcase -->
+<section style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; text-align: center; box-shadow: var(--shadow-sm);">
+  <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Specimens In The Wild</h2>
+  <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem;">
+    Over 2,100 species catalogued in the official Botanical Dex.
+  </p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; text-align: left;">
+    <div class="dex-card">
+      <div class="card-thumb-wrap">
+        <img src="{{ url_for('static', filename='thumbnails/betula_lenta.svg') }}" alt="Betula lenta" class="card-img">
+        <span class="dex-number-badge">#0001</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Sweet Birch</div>
+        <div class="card-subtitle">Betula lenta</div>
+      </div>
+    </div>
+
+    <div class="dex-card">
+      <div class="card-thumb-wrap">
+        <img src="{{ url_for('static', filename='thumbnails/urtica_dioica.svg') }}" alt="Urtica dioica" class="card-img">
+        <span class="dex-number-badge">#0002</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Stinging Nettle</div>
+        <div class="card-subtitle">Urtica dioica</div>
+      </div>
+    </div>
+
+    <div class="dex-card">
+      <div class="card-thumb-wrap">
+        <img src="{{ url_for('static', filename='thumbnails/monstera_deliciosa.svg') }}" alt="Monstera deliciosa" class="card-img">
+        <span class="dex-number-badge">#0008</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Swiss Cheese Plant</div>
+        <div class="card-subtitle">Monstera deliciosa</div>
+      </div>
+    </div>
+
+    <div class="dex-card">
+      <div class="card-thumb-wrap">
+        <img src="{{ url_for('static', filename='thumbnails/taraxacum_officinale.svg') }}" alt="Taraxacum officinale" class="card-img">
+        <span class="dex-number-badge">#0007</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Common Dandelion</div>
+        <div class="card-subtitle">Taraxacum officinale</div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Identify Specimen - PlantDex{% endblock %}
+
+{% block content %}
+<div style="max-width: 580px; margin: 1.5rem auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-md);">
+  <div style="text-align: center; margin-bottom: 1.5rem;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--primary-light); color: var(--primary); padding: 0.3rem 0.8rem; border-radius: var(--radius-pill); font-weight: 700; font-size: 0.8rem; margin-bottom: 0.5rem;">
+      🔍 Botanical Identification
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800;">Do you know the name of this plant?</h1>
+    <p style="color: var(--text-muted); font-size: 0.9rem;">
+      Confidence was low, or it was not recognized in the AI's 2,100 known species list.
+    </p>
+  </div>
+
+  <!-- User Photo Preview -->
+  <div style="width: 240px; height: 240px; margin: 0 auto 1.5rem; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--border); box-shadow: var(--shadow-sm);">
+    <img src="{{ url_for('serve_upload', filename=capture['user_photo_path']) }}" alt="Captured Plant" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+
+  <!-- Choice Prompt Buttons -->
+  <div id="choice-buttons-row" style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem;">
+    <button type="button" class="btn btn-primary btn-lg" onclick="showNameInput()" id="btn-knows-yes" style="flex: 1;">
+      ✅ Yes, I know it
+    </button>
+    
+    <form method="POST" action="{{ url_for('save_plant_name', capture_id=capture['id']) }}" style="flex: 1;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="knows_name" value="no">
+      <button type="submit" class="btn btn-secondary btn-lg" style="width: 100%;" id="btn-knows-no">
+        ❌ No, not sure
+      </button>
+    </form>
+  </div>
+
+  <!-- Name Input Form (Revealed on 'Yes') -->
+  <div id="name-input-section" style="display: none; border-top: 1px solid var(--border); padding-top: 1.5rem; animation: slideIn 0.3s ease;">
+    <form method="POST" action="{{ url_for('save_plant_name', capture_id=capture['id']) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="knows_name" value="yes">
+
+      <div style="margin-bottom: 1rem; position: relative;">
+        <label for="plant_name_input" style="display: block; font-size: 0.86rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.4rem;">
+          Enter Plant Name (Common or Scientific)
+        </label>
+        <input type="text" id="plant_name_input" name="plant_name" maxlength="80" required autocomplete="off"
+               placeholder="e.g. Sweet Birch, Taraxacum, Sunflower..."
+               style="width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card-subtle); color: var(--text-main); font-size: 1rem; outline: none;">
+        
+        <!-- Autocomplete Suggestions Dropdown -->
+        <div id="autocomplete-list" style="display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 50; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); max-height: 200px; overflow-y: auto; margin-top: 0.3rem;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;" id="btn-submit-plant-name">
+          Save to PlantDex
+        </button>
+        <button type="button" class="btn btn-secondary" onclick="hideNameInput()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showNameInput() {
+  document.getElementById('name-input-section').style.display = 'block';
+  document.getElementById('choice-buttons-row').style.display = 'none';
+  const inp = document.getElementById('plant_name_input');
+  inp.focus();
+}
+
+function hideNameInput() {
+  document.getElementById('name-input-section').style.display = 'none';
+  document.getElementById('choice-buttons-row').style.display = 'flex';
+}
+
+// Autocomplete suggestions from local database
+const inputField = document.getElementById('plant_name_input');
+const autoList = document.getElementById('autocomplete-list');
+let debounceTimeout = null;
+
+if (inputField) {
+  inputField.addEventListener('input', (e) => {
+    clearTimeout(debounceTimeout);
+    const q = e.target.value.trim();
+    if (q.length < 2) {
+      autoList.style.display = 'none';
+      return;
+    }
+
+    debounceTimeout = setTimeout(() => {
+      fetch(`/api/plants/search?q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            autoList.style.display = 'none';
+            return;
+          }
+          autoList.innerHTML = '';
+          data.forEach(item => {
+            const div = document.createElement('div');
+            div.style.padding = '0.6rem 0.9rem';
+            div.style.cursor = 'pointer';
+            div.style.borderBottom = '1px solid var(--border)';
+            div.style.fontSize = '0.9rem';
+            const displayName = item.common_name ? `${item.common_name} (${item.scientific_name})` : item.scientific_name;
+            div.textContent = displayName;
+            div.addEventListener('mouseenter', () => div.style.background = 'var(--primary-light)');
+            div.addEventListener('mouseleave', () => div.style.background = 'transparent');
+            div.addEventListener('click', () => {
+              inputField.value = item.common_name || item.scientific_name;
+              autoList.style.display = 'none';
+            });
+            autoList.appendChild(div);
+          });
+          autoList.style.display = 'block';
+        })
+        .catch(err => console.debug('Autocomplete err:', err));
+    }, 250);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!autoList.contains(e.target) && e.target !== inputField) {
+      autoList.style.display = 'none';
+    }
+  });
+}
+</script>
+{% endblock %}

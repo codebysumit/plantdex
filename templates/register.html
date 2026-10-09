@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Register - PlantDex{% endblock %}
+
+{% block content %}
+<div style="max-width: 440px; margin: 3rem auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.2rem; box-shadow: var(--shadow-md);">
+  <div style="text-align: center; margin-bottom: 1.75rem;">
+    <div style="width: 52px; height: 52px; margin: 0 auto 0.75rem; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+      🎒
+    </div>
+    <h1 style="font-size: 1.6rem; font-weight: 800;">Get Your PlantDex</h1>
+    <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">Start cataloguing wild plants in your region</p>
+  </div>
+
+  <form method="POST" action="{{ url_for('auth_register') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div style="margin-bottom: 1.2rem;">
+      <label for="username" style="display: block; font-size: 0.84rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.35rem;">Choose a Username</label>
+      <input type="text" id="username" name="username" value="{{ username or '' }}" required autofocus autocomplete="username" minlength="3" maxlength="30"
+             style="width: 100%; padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card-subtle); color: var(--text-main); font-size: 0.95rem; outline: none;">
+      <small style="color: var(--text-muted); font-size: 0.75rem;">3-30 characters</small>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <label for="password" style="display: block; font-size: 0.84rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.35rem;">Password</label>
+      <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6"
+             style="width: 100%; padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-card-subtle); color: var(--text-main); font-size: 0.95rem; outline: none;">
+      <small style="color: var(--text-muted); font-size: 0.75rem;">At least 6 characters</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem;" id="register-submit-btn">
+      Register &amp; Begin Exploring
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 1.5rem; font-size: 0.88rem; color: var(--text-muted);">
+    Already registered? 
+    <a href="{{ url_for('auth_login') }}" style="color: var(--primary); font-weight: 700; text-decoration: none;">Sign in here</a>
+  </div>
+</div>
+{% endblock %}
