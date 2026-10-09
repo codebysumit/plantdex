@@ -1,0 +1,140 @@
+# ==============================================================================
+# PlantDex - Git Ignore Configuration
+# Ignores heavy model weights, database backups, user uploads, and junk files
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. AI & Machine Learning Model Weights
+# (Downloaded automatically on server/Render via models/download_model.py)
+# ------------------------------------------------------------------------------
+*.tflite
+*.pb
+*.h5
+*.hdf5
+*.onnx
+*.bin
+*.pt
+*.pth
+*.weights
+models/*.tflite
+models/*.tmp
+models/downloads/
+
+# ------------------------------------------------------------------------------
+# 2. Database Files & Backups
+# ------------------------------------------------------------------------------
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.sql
+*.bak
+*.backup
+*.dump
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/backups/
+backups/
+
+# ------------------------------------------------------------------------------
+# 3. User Uploads & Media (Privacy & Storage Protection)
+# ------------------------------------------------------------------------------
+data/uploads/
+uploads/
+*.webp.tmp
+*.jpg.tmp
+
+# ------------------------------------------------------------------------------
+# 4. Scraper Checkpoints & Temporary Progress Logs
+# ------------------------------------------------------------------------------
+data/db_build_progress.json
+data/db_build_failed.json
+
+# ------------------------------------------------------------------------------
+# 5. Secrets & Environment Variables (Never commit secrets!)
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ------------------------------------------------------------------------------
+# 6. Python Bytecode, Caches & Virtual Environments
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+venv*/
+env/
+env*/
+ENV/
+.venv/
+
+# ------------------------------------------------------------------------------
+# 7. Testing & Coverage Artifacts
+# ------------------------------------------------------------------------------
+tests/test_data/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# ------------------------------------------------------------------------------
+# 8. Operating System & Editor Metadata
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Editors & IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
